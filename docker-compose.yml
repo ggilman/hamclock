@@ -8,4 +8,4 @@ services:
     ports:
       - 8081:8081
     volumes:
-      - /path/to/config:/config
+      - /mnt/nas_public/docker/hamclock:/config
