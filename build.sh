@@ -1,2 +1,2 @@
 #!/bin/bash
-docker build -t ggilman/hamclock:latest .
+docker build --no-cache -t ggilman/hamclock:latest .

@@ -1,6 +1,6 @@
 #build with "docker build ggilman/hamclock:latest ."
 FROM alpine:latest
-MAINTAINER George Gilman ggilman@gmail.com
+LABEL org.opencontainers.image.authors="ggilman@gmail.com"
 WORKDIR /app
 
 RUN apk update && \
@@ -18,6 +18,10 @@ RUN resolution_variants=("800x480" "1600x960" "2400x1440" "3200x1920") && \
     curl -O https://www.clearskyinstitute.com/ham/HamClock/ESPHamClock.zip && \
     unzip ESPHamClock.zip && \
     cd ESPHamClock && \
+#Bug workaround where version 4.04 code needs -fpermissive to work
+    chmod +x Makefile && \
+    sed -i 's/^\(CXXFLAGS =\)/\1 -fpermissive/' Makefile && \
+#End bug Fix
     for resolution in ${resolution_variants[*]}; \
     do \
         make -j $(nproc --all) hamclock-web-${resolution} && \
