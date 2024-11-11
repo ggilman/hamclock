@@ -1,1 +1,1 @@
-docker tag ggilman/hamclock:latest ggilman/hamclock:1.13
+docker tag ggilman/hamclock:latest ggilman/hamclock:1.22
