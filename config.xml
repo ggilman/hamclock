@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<configuration>
+  <version>
+    <major>1</major>
+    <minor>30</minor>
+  </version>
+  <image>
+    <name>ggilman/hamclock</name>
+  </image>
+  <executable>
+    <name>hamclock-1600x960</name>
+  </executable>
+  <builder>
+    <name>mybuilder</name>
+  </builder>
+  <platforms>linux/amd64,linux/arm64/v8</platforms>
+</configuration>
