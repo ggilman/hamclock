@@ -24,12 +24,12 @@ RUN resolution_variants=("800x480" "1600x960" "2400x1440" "3200x1920") && \
 #End bug Fix
     for resolution in ${resolution_variants[*]}; \
     do \
-        make -j $(nproc --all) hamclock-web-${resolution} && \
-        make install && \
-	mv hamclock-web-${resolution} /usr/local/bin/hamclock-${resolution}; \
-        #mv /usr/local/bin/hamclock /usr/local/bin/hamclock-${resolution}; \
+        make -j 4 hamclock-web-${resolution};  \
+        make install; \
+        mv /usr/local/bin/hamclock /usr/local/bin/hamclock-${resolution}; \
+        make clean; \
     done; \
-    cd && \
+    cd; \
     rm -r ${tempdir}
 
 #Create link for data persistance
