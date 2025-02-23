@@ -2,7 +2,7 @@
 <configuration>
   <version>
     <major>1</major>
-    <minor>30</minor>
+    <minor>32</minor>
   </version>
   <image>
     <name>ggilman/hamclock</name>

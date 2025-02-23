@@ -5,7 +5,7 @@ WORKDIR /app
 
 RUN apk update && \
 	apk add \
-	curl make g++ bash unzip
+	curl make g++ bash unzip linux-headers build-base
 
 
 #Below taken from https://github.com/SP5D/hamclock-web-docker/blob/main/Dockerfile
