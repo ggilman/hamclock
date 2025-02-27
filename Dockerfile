@@ -4,8 +4,10 @@ LABEL org.opencontainers.image.authors="ggilman@gmail.com"
 WORKDIR /app
 
 RUN apk update && \
+        apk upgrade && \
 	apk add \
-	curl make g++ bash unzip linux-headers build-base
+	curl make g++ bash unzip linux-headers build-base && \
+        rm -rf /var/cache/apk/*
 
 
 #Below taken from https://github.com/SP5D/hamclock-web-docker/blob/main/Dockerfile
