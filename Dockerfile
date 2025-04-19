@@ -36,7 +36,7 @@ COPY --from=builder /usr/local/bin/hamclock-* /usr/local/bin/
 
 RUN ln -s /root/.hamclock /config
 
-VOLUME /config
+#VOLUME /config
 
 EXPOSE 8081
 
