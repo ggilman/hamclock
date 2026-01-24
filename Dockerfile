@@ -30,7 +30,7 @@ FROM alpine:latest
 LABEL org.opencontainers.image.authors="ggilman@gmail.com"
 WORKDIR /app
 
-RUN apk update && apk add curl libstdc++ libgcc && rm -rf /var/cache/apk/*
+RUN apk update && apk add curl libstdc++ libgcc perl && rm -rf /var/cache/apk/*
 
 COPY --from=builder /usr/local/bin/hamclock-* /usr/local/bin/
 
