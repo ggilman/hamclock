@@ -2,7 +2,7 @@
 <configuration>
   <version>
     <major>1</major>
-    <minor>40</minor>
+    <minor>42</minor>
   </version>
   <image>
     <name>ggilman/hamclock</name>
@@ -13,5 +13,5 @@
   <builder>
     <name>mybuilder</name>
   </builder>
-  <platforms>linux/amd64,linux/arm64/v8</platforms>
+  <platforms>linux/amd64,linux/arm64</platforms>
 </configuration>
