@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <configuration>
   <version>
-    <major>1</major>
-    <minor>43</minor>
+    <major>2</major>
+    <minor>0</minor>
   </version>
   <image>
     <name>ggilman/hamclock</name>

@@ -261,8 +261,7 @@ If you want **complete independence** from third-party servers, you can run both
 services:
   # Open HamClock Backend
   backend:
-    image: # Verify actual image name from https://github.com/BrianWilkinsFL/open-hamclock-backend
-    # Possible names: komacke/open-hamclock-backend, brianwilkinsfl/open-hamclock-backend
+    image: komacke/open-hamclock-backend  # https://hub.docker.com/r/komacke/open-hamclock-backend
     # Or build from source: 
     # build:
     #   context: https://github.com/BrianWilkinsFL/open-hamclock-backend.git
@@ -321,15 +320,13 @@ services:
    - Environment variables needed for your deployment
    - Volume mounts for persistent data
    - Any additional configuration files
-3. Verify the OHB Docker image name (or prepare to build from source)
-4. Configure all required API keys as environment variables in the docker-compose.yml
-5. Update the `image:` line with the correct image name
-6. Run: `docker-compose up -d`
-7. Check backend logs for errors: `docker logs hamclock-backend`
-8. Verify backend API is responding: `curl http://localhost:8080`
-9. Check frontend logs: `docker logs hamclock | grep Backend`
+3. Configure all required API keys as environment variables in the docker-compose.yml
+4. Run: `docker-compose up -d`
+5. Check backend logs for errors: `docker logs hamclock-backend`
+6. Verify backend API is responding: `curl http://localhost:8080`
+7. Check frontend logs: `docker logs hamclock | grep Backend`
 
-**Note**: If OHB doesn't provide a pre-built Docker image, you can build from their GitHub repository by uncommenting the `build:` section and removing the `image:` line.
+**Note**: The pre-built Docker image is available at [Docker Hub](https://hub.docker.com/r/komacke/open-hamclock-backend). Alternatively, you can build from source by uncommenting the `build:` section and removing the `image:` line.
 
 #### No Backend Configuration
 
@@ -568,7 +565,7 @@ This Docker container implementation is provided as-is for the amateur radio com
 - **Community Backends**:
   - Bruce Edrich, W4BAE - [hamclock.com](https://hamclock.com/)
   - Brian (KO4AQF) & Austin (KN4LNB) - [Open HamClock Backend](https://github.com/BrianWilkinsFL/open-hamclock-backend)
-- **Docker Container**: George Gilman, W4GHG - ggilman@gmail.com | [QRZ](https://www.qrz.com/db/W4GHG)
+- **Docker Container**: George Gilman, W4GHG | [QRZ](https://www.qrz.com/db/W4GHG)
 
 *73, Elwood. Your work lives on.*
 

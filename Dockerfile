@@ -54,7 +54,7 @@ FROM alpine:${ALPINE_TAG}
 ARG HAMCLOCK_VERSION=4.22
 ARG ALPINE_TAG=3.23.3
 
-LABEL org.opencontainers.image.authors="ggilman@gmail.com" \
+LABEL org.opencontainers.image.authors="W4GHG" \
       org.opencontainers.image.version="${HAMCLOCK_VERSION}" \
       org.opencontainers.image.description="HamClock Web Application" \
       org.opencontainers.image.source="https://www.clearskyinstitute.com/ham/HamClock/" \
