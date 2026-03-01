@@ -11,7 +11,8 @@ A production-ready, multi-architecture Docker container for [HamClock](https://w
 - 🔒 **Security**: Supports non-root operation with PUID/PGID
 - 📦 **Lightweight**: Based on Alpine Linux (3.23.3)
 - 🎨 **Multiple Resolutions**: Pre-built binaries for 800x480, 1600x960, 2400x1440, and 3200x1920
-- 🏥 **Health Monitoring**: Built-in Docker healthcheck
+- � **Backend Configuration**: Easy switching between community backends (hamclock.com, OHB, or custom)
+- �🏥 **Health Monitoring**: Built-in Docker healthcheck
 - 💾 **Persistent Storage**: Configuration automatically saved to mounted volume
 - 🕐 **Timezone Support**: Respects `TZ` environment variable
 
@@ -24,6 +25,7 @@ docker run -d \
   --name hamclock \
   -p 8081:8081 \
   -e TZ=America/New_York \
+  -e BACKEND_PRESET=hamclock \
   -v /path/to/config:/config \
   --restart unless-stopped \
   ggilman/hamclock:latest
@@ -41,6 +43,7 @@ services:
       - 8081:8081
     environment:
       - TZ=America/New_York
+      - BACKEND_PRESET=hamclock  # Recommended - see Backend Configuration
       - PUID=1000  # Optional
       - PGID=1000  # Optional
     volumes:
@@ -53,6 +56,8 @@ docker-compose up -d
 ```
 
 Access HamClock at: `http://localhost:8081`
+
+> **⚠️ Important**: The original backend shuts down June 2026. Set `BACKEND_PRESET=hamclock` to use the community server. See [Backend Configuration](#5-backend-configuration) for details.
 
 ## Configuration & Persistence
 
@@ -137,6 +142,98 @@ Set the `TZ` environment variable (e.g., `America/New_York`, `Europe/London`) to
 
 [Full timezone list](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones)
 
+### 5. Backend Configuration
+
+**⚠️ Important**: The original HamClock backend (`clearskyinstitute.com`) will **shut down in June 2026**. You should configure an alternate backend to ensure your HamClock continues working.
+
+This container supports two methods for backend configuration:
+
+#### Method 1: Use a Preset (Recommended)
+
+Set the `BACKEND_PRESET` environment variable to one of these values:
+
+| Preset | Backend Server | Description |
+|--------|---------------|-------------|
+| `hamclock` | hamclock.com:80 | **Recommended** - Free community server by W4BAE, production-ready |
+| `ohb` | ohb.hamclock.app:80 | Open HamClock Backend - Community self-hosted option |
+| `original` | clearskyinstitute.com:80 | Original server (deprecated, stops June 2026) |
+
+**Example with preset:**
+```bash
+docker run -d \
+  --name hamclock \
+  -p 8081:8081 \
+  -e BACKEND_PRESET=hamclock \
+  -v /path/to/config:/config \
+  ggilman/hamclock:latest
+```
+
+**Docker Compose with preset:**
+```yaml
+services:
+  hamclock:
+    image: ggilman/hamclock:latest
+    environment:
+      - BACKEND_PRESET=hamclock  # W4BAE's server
+    ports:
+      - 8081:8081
+    volumes:
+      - /path/to/config:/config
+```
+
+#### Method 2: Custom Backend URL
+
+If you're running your own backend or want to use a different server, set `BACKEND_URL` (this takes priority over `BACKEND_PRESET`):
+
+**Example with custom backend:**
+```bash
+docker run -d \
+  --name hamclock \
+  -p 8081:8081 \
+  -e BACKEND_URL=192.168.1.100:8080 \
+  -v /path/to/config:/config \
+  ggilman/hamclock:latest
+```
+
+**Docker Compose with custom backend:**
+```yaml
+services:
+  hamclock:
+    image: ggilman/hamclock:latest
+    environment:
+      - BACKEND_URL=192.168.1.100:8080
+    ports:
+      - 8081:8081
+    volumes:
+      - /path/to/config:/config
+```
+
+#### Using .env File
+
+Edit the `.env` file to set your backend preference:
+
+```env
+# Option 1: Use a preset
+BACKEND_PRESET=hamclock
+
+# Option 2: Use custom URL (takes priority)
+#BACKEND_URL=192.168.1.100:8080
+```
+
+Then run:
+```bash
+docker-compose up -d
+```
+
+#### No Backend Configuration
+
+If you don't set either variable, HamClock will use its default behavior (currently points to `clearskyinstitute.com`, which stops working June 2026).
+
+#### Backend Information
+
+- **hamclock.com** (W4BAE): Free, production-ready, actively maintained. [More info](https://hamclock.com/)
+- **Open HamClock Backend**: Community-driven, self-hostable. [GitHub](https://github.com/BrianWilkinsFL/open-hamclock-backend) | [Docker Hub](https://hub.docker.com/r/komacke/open-hamclock-backend)
+
 ## Advanced Usage
 
 ### Custom Port
@@ -165,6 +262,43 @@ docker inspect --format='{{.State.Health.Status}}' hamclock
 ```
 
 ## Troubleshooting
+
+### Backend Connection Issues
+
+**Problem**: HamClock shows "No data" or blank displays after June 2026.
+
+**Solution**: The original backend (`clearskyinstitute.com`) has shut down. Configure an alternate backend:
+
+```bash
+# Stop and remove existing container
+docker stop hamclock && docker rm hamclock
+
+# Start with new backend
+docker run -d \
+  --name hamclock \
+  -p 8081:8081 \
+  -e BACKEND_PRESET=hamclock \
+  -v /path/to/config:/config \
+  ggilman/hamclock:latest
+```
+
+**For docker-compose**, add to your environment section:
+```yaml
+environment:
+  - BACKEND_PRESET=hamclock
+```
+
+Then:
+```bash
+docker-compose down
+docker-compose up -d
+```
+
+**Verify backend is set**: Check container logs:
+```bash
+docker logs hamclock | grep Backend
+# Should show: Backend: hamclock.com:80 (W4BAE's server)
+```
 
 ### Permission Denied Errors
 

@@ -16,6 +16,11 @@ services:
       - TZ=${TZ:-UTC}
       - PUID=${PUID:-0}
       - PGID=${PGID:-0}
+      # Backend Configuration (choose one method):
+      # Option 1: Use a preset (hamclock, ohb, original)
+      - BACKEND_PRESET=${BACKEND_PRESET:-}
+      # Option 2: Specify custom backend URL (takes priority over preset)
+      - BACKEND_URL=${BACKEND_URL:-}
     volumes:
       # Change this path to your desired config location
       - /mnt/nas_public/docker/hamclock:/config
