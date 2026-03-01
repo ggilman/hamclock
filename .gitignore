@@ -1,0 +1,17 @@
+# Build logs
+build_debug_*.log
+*.log
+
+# Temporary files
+*.tmp
+*.swp
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+*.iml

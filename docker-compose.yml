@@ -1,12 +1,23 @@
 services:
   app:
+    build:
+      context: .
+      args:
+        - ALPINE_TAG=${ALPINE_TAG:-3.23.3}
+        - HAMCLOCK_VERSION=${HAMCLOCK_VERSION:-4.22}
+        - BUILD_RESOLUTIONS=${BUILD_RESOLUTIONS:-800x480,1600x960,2400x1440,3200x1920}
     image: ggilman/hamclock:latest
     container_name: hamclock
     restart: unless-stopped
     network_mode: bridge
     ports:
-      - 8081:8081
+      - ${PORT:-8081}:8081
+    environment:
+      - TZ=${TZ:-UTC}
+      - PUID=${PUID:-0}
+      - PGID=${PGID:-0}
     volumes:
+      # Change this path to your desired config location
       - /mnt/nas_public/docker/hamclock:/config
     #debug only, keeps container up
     #command: tail -f /dev/null

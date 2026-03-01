@@ -1,0 +1,39 @@
+# Git files
+.git
+.gitignore
+.gitattributes
+
+# Documentation
+README.md
+*.md
+LICENSE
+
+# Docker files
+docker-compose.yml
+Dockerfile
+.dockerignore
+
+# Build configuration (used by docker-compose, not needed in image)
+.env
+
+# Scripts not needed in build context
+sync_and_run.sh
+
+# Config files (mounted at runtime)
+config.xml
+
+# IDE and editor files
+.vscode
+.idea
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs and temporary files
+*.log
+tmp/
+temp/
