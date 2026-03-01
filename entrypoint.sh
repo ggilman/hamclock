@@ -11,6 +11,7 @@ echo "Group ID: $GROUP_ID"
 
 # Backend Configuration
 # Resolve backend URL from BACKEND_PRESET or BACKEND_URL
+# Default to hamclock.com if nothing is specified
 BACKEND_ARG=""
 
 if [ -n "$BACKEND_URL" ]; then
@@ -33,11 +34,14 @@ elif [ -n "$BACKEND_PRESET" ]; then
             echo "Backend: clearskyinstitute.com:80 (original - deprecated June 2026)"
             ;;
         *)
-            echo "Warning: Unknown BACKEND_PRESET '$BACKEND_PRESET', using default"
+            echo "Warning: Unknown BACKEND_PRESET '$BACKEND_PRESET', using default hamclock.com"
+            BACKEND_ARG="-b hamclock.com:80"
             ;;
     esac
 else
-    echo "Backend: Using HamClock default"
+    # Default to hamclock.com (W4BAE's server)
+    BACKEND_ARG="-b hamclock.com:80"
+    echo "Backend: hamclock.com:80 (default - W4BAE's server)"
 fi
 
 if [ "$USER_ID" -ne 0 ]; then

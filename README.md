@@ -11,10 +11,28 @@ A production-ready, multi-architecture Docker container for [HamClock](https://w
 - 🔒 **Security**: Supports non-root operation with PUID/PGID
 - 📦 **Lightweight**: Based on Alpine Linux (3.23.3)
 - 🎨 **Multiple Resolutions**: Pre-built binaries for 800x480, 1600x960, 2400x1440, and 3200x1920
-- � **Backend Configuration**: Easy switching between community backends (hamclock.com, OHB, or custom)
-- �🏥 **Health Monitoring**: Built-in Docker healthcheck
+- � **Backend Configuration**: Easy switching between community backends (hamclock.com, OHB, or custom)- 🏠 **Self-Hosting Ready**: Run HamClock + backend together in one docker-compose file for complete independence- �🏥 **Health Monitoring**: Built-in Docker healthcheck
 - 💾 **Persistent Storage**: Configuration automatically saved to mounted volume
 - 🕐 **Timezone Support**: Respects `TZ` environment variable
+
+## ⚠️ Important: Backend Server Changes
+
+**HamClock creator Elwood Downey (WB0OEW) became a Silent Key on January 29, 2026.**
+
+The original HamClock backend server at `clearskyinstitute.com` will **shut down permanently in June 2026**. Without a backend server, HamClock cannot function—it relies on the backend for all its data feeds, propagation maps, weather, satellite tracking, and more.
+
+### What Changed
+
+Recognizing this critical need, Elwood added the `-b` (backend) flag to HamClock v4.22 in his final release, allowing users to point their HamClocks to alternate backend servers. The amateur radio community responded by creating replacement backends to keep HamClock alive:
+
+- **[hamclock.com](https://hamclock.com/)** - Production backend by Bruce Edrich (W4BAE), free forever, actively maintained
+- **[Open HamClock Backend (OHB)](https://github.com/BrianWilkinsFL/open-hamclock-backend)** - Self-hostable open-source backend by Brian (KO4AQF) and Austin (KN4LNB)
+
+### This Container
+
+This Docker container has been updated to support easy backend configuration through environment variables. **The last image pointing to the original `clearskyinstitute.com` backend was tagged `legacy`**—no further updates will be made to legacy builds.
+
+**All current and future builds default to `hamclock.com`** (W4BAE's community server) to ensure your HamClock continues working beyond June 2026. You can choose a different backend or run your own. See [Backend Configuration](#5-backend-configuration) below for details.
 
 ## Quick Start
 
@@ -25,11 +43,12 @@ docker run -d \
   --name hamclock \
   -p 8081:8081 \
   -e TZ=America/New_York \
-  -e BACKEND_PRESET=hamclock \
   -v /path/to/config:/config \
   --restart unless-stopped \
   ggilman/hamclock:latest
 ```
+
+> **Note**: Defaults to hamclock.com backend. To use a different backend, add `-e BACKEND_PRESET=ohb` or `-e BACKEND_URL=your-server:port`. See [Backend Configuration](#5-backend-configuration).
 
 ### Using Docker Compose
 
@@ -43,7 +62,7 @@ services:
       - 8081:8081
     environment:
       - TZ=America/New_York
-      - BACKEND_PRESET=hamclock  # Recommended - see Backend Configuration
+      # - BACKEND_PRESET=hamclock  # Optional - already the default
       - PUID=1000  # Optional
       - PGID=1000  # Optional
     volumes:
@@ -57,7 +76,7 @@ docker-compose up -d
 
 Access HamClock at: `http://localhost:8081`
 
-> **⚠️ Important**: The original backend shuts down June 2026. Set `BACKEND_PRESET=hamclock` to use the community server. See [Backend Configuration](#5-backend-configuration) for details.
+> **⚠️ Important**: The original backend shuts down June 2026. This container **defaults to `hamclock.com`** (W4BAE's community server) to ensure continued operation. See [Backend Configuration](#5-backend-configuration) for other options.
 
 ## Configuration & Persistence
 
@@ -225,14 +244,115 @@ Then run:
 docker-compose up -d
 ```
 
+#### Self-Hosting with Open HamClock Backend
+
+If you want **complete independence** from third-party servers, you can run both the HamClock frontend and the Open HamClock Backend (OHB) together in a single docker-compose setup. This is ideal for:
+
+- **Air-gapped installations** (no internet dependency for backend)
+- **Privacy** (all data stays on your network)
+- **Reliability** (no reliance on external servers)
+- **Customization** (modify backend behavior to your needs)
+
+**Combined docker-compose.yml:**
+
+```yaml
+services:
+  # Open HamClock Backend
+  backend:
+    image: # Verify actual image name from https://github.com/BrianWilkinsFL/open-hamclock-backend
+    # Possible names: komacke/open-hamclock-backend, brianwilkinsfl/open-hamclock-backend
+    # Or build from source: 
+    # build:
+    #   context: https://github.com/BrianWilkinsFL/open-hamclock-backend.git
+    container_name: hamclock-backend
+    restart: unless-stopped
+    ports:
+      - 8080:80  # Optional - expose backend for direct access
+    # Add OHB-specific configuration here (consult OHB documentation):
+    # environment:
+    #   - TZ=America/New_York
+    # volumes:
+    #   - ./backend-data:/data
+
+  # HamClock Frontend
+  hamclock:
+    image: ggilman/hamclock:latest
+    container_name: hamclock
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - 8081:8081
+    environment:
+      - TZ=America/New_York
+      - BACKEND_URL=backend:80  # Points to the OHB service above
+      - PUID=1000  # Optional
+      - PGID=1000  # Optional
+    volumes:
+      - /path/to/config:/config
+```
+
+> **⚠️ Important - API Keys Required**: The Open HamClock Backend requires API keys for various data sources (weather, space weather, propagation data, etc.) to function properly. **Before deploying**, review the [OHB Configuration Documentation](https://github.com/BrianWilkinsFL/open-hamclock-backend) thoroughly, especially the **API Keys section**, to ensure your backend has all required credentials configured. Without proper API keys, many HamClock features will not work.
+
+> **📦 Backend Dependency - jq Required**: The Open HamClock Backend requires the `jq` command-line JSON processor to be installed on the host running the backend container. Verify it's installed with `jq --version`. If not installed, use your distribution's package manager (e.g., `apt install jq`, `yum install jq`, or `apk add jq`). **Note**: This is only required for self hosting the backend, not the HamClock frontend.
+
+**How it works:**
+
+1. Docker Compose automatically creates a network where services can communicate
+2. The `backend` service runs OHB on port 80 (internal)
+3. The `hamclock` service connects to `backend:80` using Docker's built-in DNS
+4. `depends_on` ensures the backend starts before the frontend
+
+**Access points:**
+- HamClock frontend: `http://localhost:8081`
+- Backend API (optional): `http://localhost:8080`
+
+**Setup steps:**
+
+1. **Verify host dependencies**: The backend requires `jq` (JSON processor) on the host system:
+   ```bash
+   jq --version  # Should show any version
+   # If not installed: apt install jq  (Debian/Ubuntu)
+   #                   yum install jq  (RHEL/CentOS)
+   #                   apk add jq      (Alpine)
+   ```
+2. **Review OHB requirements**: Read the [OHB repository documentation](https://github.com/BrianWilkinsFL/open-hamclock-backend) carefully, paying special attention to:
+   - **API Keys section** - Required for weather, space weather, propagation, and other data sources
+   - Environment variables needed for your deployment
+   - Volume mounts for persistent data
+   - Any additional configuration files
+3. Verify the OHB Docker image name (or prepare to build from source)
+4. Configure all required API keys as environment variables in the docker-compose.yml
+5. Update the `image:` line with the correct image name
+6. Run: `docker-compose up -d`
+7. Check backend logs for errors: `docker logs hamclock-backend`
+8. Verify backend API is responding: `curl http://localhost:8080`
+9. Check frontend logs: `docker logs hamclock | grep Backend`
+
+**Note**: If OHB doesn't provide a pre-built Docker image, you can build from their GitHub repository by uncommenting the `build:` section and removing the `image:` line.
+
 #### No Backend Configuration
 
-If you don't set either variable, HamClock will use its default behavior (currently points to `clearskyinstitute.com`, which stops working June 2026).
+If you don't set either variable, **the container defaults to `hamclock.com:80`** (W4BAE's server). This ensures your HamClock works out-of-the-box beyond June 2026.
 
 #### Backend Information
 
-- **hamclock.com** (W4BAE): Free, production-ready, actively maintained. [More info](https://hamclock.com/)
-- **Open HamClock Backend**: Community-driven, self-hostable. [GitHub](https://github.com/BrianWilkinsFL/open-hamclock-backend) | [Docker Hub](https://hub.docker.com/r/komacke/open-hamclock-backend)
+**[hamclock.com](https://hamclock.com/)** (Recommended)
+- **Operator**: Bruce Edrich, W4BAE
+- **Status**: Free, production-ready, actively maintained
+- **Features**: Rebuilt VOACAP engine, real-time PSK Reporter stream, weather pressure maps, aurora/DRAP maps, and more
+- **Infrastructure**: AWS-hosted, serves thousands of HamClocks
+- **Promise**: Free forever as a community service
+- **Note**: Started as a fork of OHB, now a fully independent production backend
+
+**[Open HamClock Backend (OHB)](https://github.com/BrianWilkinsFL/open-hamclock-backend)**
+- **Developers**: Brian (KO4AQF) and Austin (KN4LNB)
+- **Status**: Open-source, community-driven, self-hostable
+- **Features**: Implements self-hosted backend compatible with HamClock, rebuilds dynamic feeds, generates map overlays
+- **Deployment**: Raspberry Pi, cloud, VM, or bare metal
+- **License**: MIT
+- **Use Case**: Ideal if you want to run your own backend infrastructure
+- **Self-Hosting**: See [Self-Hosting with Open HamClock Backend](#self-hosting-with-open-hamclock-backend) for instructions on running both HamClock and OHB together in one docker-compose file
 
 ## Advanced Usage
 
@@ -429,23 +549,40 @@ If you encounter problems:
 ### HamClock Support
 
 For HamClock software issues (not Docker-related):
-- Visit: https://www.clearskyinstitute.com/ham/HamClock/
-- Contact: Elwood Downey, WB0OEW
+- **Original HamClock**: Visit [clearskyinstitute.com](https://www.clearskyinstitute.com/ham/HamClock/) for documentation and source code
+- **Backend Support**: Contact backend operators directly:
+  - hamclock.com: [contact Form](https://hamclock.com/) or email W4BAE
+  - OHB: [GitHub Issues](https://github.com/BrianWilkinsFL/open-hamclock-backend/issues) or [Discord](https://discord.gg/wb8ATjVn6M)
+
+**Note**: Elwood Downey (WB0OEW), creator of HamClock, became a Silent Key in January 2026. The community is now maintaining backend infrastructure to keep his legacy alive.
 
 ## License
 
-HamClock software is created and maintained by Elwood Downey, WB0OEW.  
+HamClock software was created by Elwood Downey (WB0OEW), who became a Silent Key on January 29, 2026. His open-source work continues to serve the amateur radio community.
+
 This Docker container implementation is provided as-is for the amateur radio community.
 
 ## Credits
 
-- **HamClock**: Elwood Downey, WB0OEW - https://www.clearskyinstitute.com/ham/HamClock/
+- **HamClock Creator**: Elwood Downey, WB0OEW (SK) - https://www.clearskyinstitute.com/ham/HamClock/
+- **Community Backends**:
+  - Bruce Edrich, W4BAE - [hamclock.com](https://hamclock.com/)
+  - Brian (KO4AQF) & Austin (KN4LNB) - [Open HamClock Backend](https://github.com/BrianWilkinsFL/open-hamclock-backend)
 - **Docker Container**: ggilman@gmail.com
+
+*73, Elwood. Your work lives on.*
 
 ## Links
 
+### This Project
 - [GitHub Repository](https://github.com/ggilman/hamclock)
 - [Docker Hub](https://hub.docker.com/r/ggilman/hamclock)
-- [HamClock Official Site](https://www.clearskyinstitute.com/ham/HamClock/)
 - [Report Issues](https://github.com/ggilman/hamclock/issues)
+
+### HamClock
+- [HamClock Official Site](https://www.clearskyinstitute.com/ham/HamClock/)
+
+### Backend Servers
+- [hamclock.com](https://hamclock.com/) - W4BAE's community backend (recommended)
+- [Open HamClock Backend (OHB)](https://github.com/BrianWilkinsFL/open-hamclock-backend) - Self-hostable backend
 
