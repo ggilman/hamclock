@@ -21,7 +21,7 @@ A production-ready, multi-architecture Docker container for [HamClock](https://w
 
 The original HamClock backend server at `clearskyinstitute.com` will **shut down permanently in June 2026**. Without a backend server, HamClock cannot function—it relies on the backend for all its data feeds, propagation maps, weather, satellite tracking, and more.
 
-**Beginning with version 2.0**, this container has been completely redesigned to address these challenges and ensure HamClock's continued operation. This major release introduces intelligent backend configuration with defaults that work out-of-the-box, flexible preset options for community servers, and comprehensive support for self-hosting your own backend infrastructure—giving you complete control and independence from third-party services.
+**Beginning with version 2.0**, this container has been updated to address these challenges and ensure HamClock's continued operation. This major release introduces intelligent backend configuration with defaults that work out-of-the-box, flexible preset options for community servers, and comprehensive support for integrating with backend solutions created by other developers—giving you complete control and independence from third-party services.
 
 ### What Changed
 
