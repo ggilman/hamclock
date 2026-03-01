@@ -308,23 +308,16 @@ services:
 
 **Setup steps:**
 
-1. **Verify host dependencies**: The backend requires `jq` (JSON processor) on the host system:
-   ```bash
-   jq --version  # Should show any version
-   # If not installed: apt install jq  (Debian/Ubuntu)
-   #                   yum install jq  (RHEL/CentOS)
-   #                   apk add jq      (Alpine)
-   ```
-2. **Review OHB requirements**: Read the [OHB repository documentation](https://github.com/BrianWilkinsFL/open-hamclock-backend) carefully, paying special attention to:
+1. **Review OHB requirements**: Read the [OHB repository documentation](https://github.com/BrianWilkinsFL/open-hamclock-backend) carefully, paying special attention to:
    - **API Keys section** - Required for weather, space weather, propagation, and other data sources
    - Environment variables needed for your deployment
    - Volume mounts for persistent data
    - Any additional configuration files
-3. Configure all required API keys as environment variables in the docker-compose.yml
-4. Run: `docker-compose up -d`
-5. Check backend logs for errors: `docker logs hamclock-backend`
-6. Verify backend API is responding: `curl http://localhost:8080`
-7. Check frontend logs: `docker logs hamclock | grep Backend`
+2. Configure all required API keys as environment variables in the docker-compose.yml
+3. Run: `docker-compose up -d`
+4. Check backend logs for errors: `docker logs hamclock-backend`
+5. Verify backend API is responding: `curl http://localhost:8080`
+6. Check frontend logs: `docker logs hamclock | grep Backend`
 
 **Note**: The pre-built Docker image is available at [Docker Hub](https://hub.docker.com/r/komacke/open-hamclock-backend). Alternatively, you can build from source by uncommenting the `build:` section and removing the `image:` line.
 
