@@ -82,7 +82,7 @@ Access HamClock at: `http://localhost:8081`
 
 ## Configuration & Persistence
 
-### 1. File Permissions (New!)
+### 1. File Permissions
 
 By default, this container runs as root. However, if you are running this on a NAS (Synology, Unraid, etc.) or want better security, you can specify a user/group ID.
 
@@ -568,7 +568,7 @@ This Docker container implementation is provided as-is for the amateur radio com
 - **Community Backends**:
   - Bruce Edrich, W4BAE - [hamclock.com](https://hamclock.com/)
   - Brian (KO4AQF) & Austin (KN4LNB) - [Open HamClock Backend](https://github.com/BrianWilkinsFL/open-hamclock-backend)
-- **Docker Container**: ggilman@gmail.com
+- **Docker Container**: George Gilman, W4GHG - ggilman@gmail.com | [QRZ](https://www.qrz.com/db/W4GHG)
 
 *73, Elwood. Your work lives on.*
 
