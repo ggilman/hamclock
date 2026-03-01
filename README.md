@@ -21,6 +21,8 @@ A production-ready, multi-architecture Docker container for [HamClock](https://w
 
 The original HamClock backend server at `clearskyinstitute.com` will **shut down permanently in June 2026**. Without a backend server, HamClock cannot function—it relies on the backend for all its data feeds, propagation maps, weather, satellite tracking, and more.
 
+**Beginning with version 2.0**, this container has been completely redesigned to address these challenges and ensure HamClock's continued operation. This major release introduces intelligent backend configuration with defaults that work out-of-the-box, flexible preset options for community servers, and comprehensive support for self-hosting your own backend infrastructure—giving you complete control and independence from third-party services.
+
 ### What Changed
 
 Recognizing this critical need, Elwood added the `-b` (backend) flag to HamClock v4.22 in his final release, allowing users to point their HamClocks to alternate backend servers. The amateur radio community responded by creating replacement backends to keep HamClock alive:
@@ -293,8 +295,6 @@ services:
 ```
 
 > **⚠️ Important - API Keys Required**: The Open HamClock Backend requires API keys for various data sources (weather, space weather, propagation data, etc.) to function properly. **Before deploying**, review the [OHB Configuration Documentation](https://github.com/BrianWilkinsFL/open-hamclock-backend) thoroughly, especially the **API Keys section**, to ensure your backend has all required credentials configured. Without proper API keys, many HamClock features will not work.
-
-> **📦 Backend Dependency - jq Required**: The Open HamClock Backend requires the `jq` command-line JSON processor to be installed on the host running the backend container. Verify it's installed with `jq --version`. If not installed, use your distribution's package manager (e.g., `apt install jq`, `yum install jq`, or `apk add jq`). **Note**: This is only required for self hosting the backend, not the HamClock frontend.
 
 **How it works:**
 
