@@ -1,12 +1,12 @@
 # HamClock Docker
 
-A production-ready, multi-architecture Docker container for [HamClock](https://www.clearskyinstitute.com/ham/HamClock/) by Elwood Downey (WB0OEW).
+A production-ready, multi-architecture Docker container for [HamClock](https://www.clearskyinstitute.com/ham/HamClock/) by Elwood Downey (WB0OEW). Source is now maintained by the community at [github.com/openhamclock/hamclock](https://github.com/openhamclock/hamclock).
 
 ## Features
 
 - 🚀 **Multi-Architecture**: `linux/amd64` and `linux/arm64`
 - 🔒 **Security**: Non-root operation with PUID/PGID support
-- 📦 **Lightweight**: Alpine Linux 3.23.3
+- 📦 **Lightweight**: Alpine Linux 3.23.4
 - 🎨 **Multiple Resolutions**: 800x480, 1600x960, 2400x1440, 3200x1920
 - 🌐 **Backend Configuration**: Easy switching between community backends (hamclock.com, OHB, or custom)
 - 🏠 **Self-Hosting Ready**: Run HamClock + backend together
@@ -68,7 +68,8 @@ services:
 
 ## Credits
 
-- **HamClock Creator**: Elwood Downey, WB0OEW (SK)
+- **HamClock Creator**: Elwood Downey, WB0OEW (SK) — original source at [clearskyinstitute.com](https://www.clearskyinstitute.com/ham/HamClock/)
+- **Community Source**: Now maintained at [github.com/openhamclock/hamclock](https://github.com/openhamclock/hamclock)
 - **Community Backends**: W4BAE (hamclock.com), KO4AQF & KN4LNB (OHB)
 - **Docker Container**: George Gilman, W4GHG
 

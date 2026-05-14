@@ -1,6 +1,6 @@
 # HamClock Docker
 
-A production-ready, multi-architecture Docker container for [HamClock](https://www.clearskyinstitute.com/ham/HamClock/) by Elwood Downey (WB0OEW).
+A production-ready, multi-architecture Docker container for [HamClock](https://github.com/openhamclock/hamclock), originally by Elwood Downey (WB0OEW), now maintained by the open-source community.
 
 [![Docker Image](https://img.shields.io/badge/docker-ggilman%2Fhamclock-blue)](https://hub.docker.com/r/ggilman/hamclock)
 [![GitHub](https://img.shields.io/badge/github-ggilman%2Fhamclock-green)](https://github.com/ggilman/hamclock)
@@ -9,7 +9,7 @@ A production-ready, multi-architecture Docker container for [HamClock](https://w
 
 - 🚀 **Multi-Architecture Support**: Runs on `linux/amd64` and `linux/arm64`
 - 🔒 **Security**: Supports non-root operation with PUID/PGID
-- 📦 **Lightweight**: Based on Alpine Linux (3.23.3)
+- 📦 **Lightweight**: Based on Alpine Linux (3.23.4)
 - 🎨 **Multiple Resolutions**: Pre-built binaries for 800x480, 1600x960, 2400x1440, and 3200x1920
 - � **Backend Configuration**: Easy switching between community backends (hamclock.com, OHB, or custom)- 🏠 **Self-Hosting Ready**: Run HamClock + backend together in one docker-compose file for complete independence- �🏥 **Health Monitoring**: Built-in Docker healthcheck
 - 💾 **Persistent Storage**: Configuration automatically saved to mounted volume
@@ -482,8 +482,8 @@ docker build -t hamclock:custom .
 **With custom build arguments:**
 ```bash
 docker build \
-  --build-arg ALPINE_TAG=3.23.3 \
-  --build-arg HAMCLOCK_VERSION=4.22 \
+  --build-arg ALPINE_TAG=3.23.4 \
+  --build-arg HAMCLOCK_VERSION=4.24.0 \
   --build-arg BUILD_RESOLUTIONS="1600x960,2400x1440" \
   -t hamclock:custom .
 ```
@@ -492,8 +492,8 @@ docker build \
 ```bash
 docker buildx build \
   --platform linux/amd64,linux/arm64 \
-  --build-arg ALPINE_TAG=3.23.3 \
-  --build-arg HAMCLOCK_VERSION=4.22 \
+  --build-arg ALPINE_TAG=3.23.4 \
+  --build-arg HAMCLOCK_VERSION=4.24.0 \
   -t yourusername/hamclock:latest \
   --push .
 ```
@@ -514,17 +514,17 @@ The default is `800x480,1600x960,2400x1440,3200x1920` which builds all four reso
 
 This container uses a multi-stage build process:
 
-1. **Builder Stage**: Downloads HamClock source, compiles for multiple resolutions, strips debug symbols
+1. **Builder Stage**: Clones HamClock source from [GitHub](https://github.com/openhamclock/hamclock), compiles for multiple resolutions, strips debug symbols
 2. **Runtime Stage**: Minimal Alpine image with only runtime dependencies
 
-**Base Image**: Alpine Linux 3.23.3  
+**Base Image**: Alpine Linux 3.23.4  
 **Compiled HamClock Versions**: All available resolutions  
 **Security**: Runs as non-root user when PUID/PGID specified  
 
 ## Version Information
 
-- **HamClock**: Dynamically downloaded from [clearskyinstitute.com](https://www.clearskyinstitute.com/ham/HamClock/)
-- **Alpine**: 3.23.3
+- **HamClock**: Cloned from [github.com/openhamclock/hamclock](https://github.com/openhamclock/hamclock)
+- **Alpine**: 3.23.4
 - **Container Version**: Check image tags on Docker Hub
 
 ## Support & Contributing
@@ -539,7 +539,7 @@ If you encounter problems:
 ### HamClock Support
 
 For HamClock software issues (not Docker-related):
-- **Original HamClock**: Visit [clearskyinstitute.com](https://www.clearskyinstitute.com/ham/HamClock/) for documentation and source code
+- **HamClock Source**: Visit [github.com/openhamclock/hamclock](https://github.com/openhamclock/hamclock) for documentation and source code
 - **Backend Support**: Contact backend operators directly:
   - hamclock.com: [contact Form](https://hamclock.com/) or email W4BAE
   - OHB: [GitHub Issues](https://github.com/BrianWilkinsFL/open-hamclock-backend/issues) or [Discord](https://discord.gg/wb8ATjVn6M)
@@ -548,13 +548,16 @@ For HamClock software issues (not Docker-related):
 
 ## License
 
-HamClock software was created by Elwood Downey (WB0OEW), who became a Silent Key on January 29, 2026. His open-source work continues to serve the amateur radio community.
+This project is licensed under the **MIT License** — see the [LICENSE](LICENSE) file for full details.
 
-This Docker container implementation is provided as-is for the amateur radio community.
+- HamClock software: Copyright (c) 2020-2025 Elwood Charles Downey (WB0OEW, SK)
+- Community continuation: Copyright (c) 2026 Dave Koberstein and the [openhamclock](https://github.com/openhamclock/hamclock) community
+- Docker container: Copyright (c) 2026 George Gilman, W4GHG
 
 ## Credits
 
-- **HamClock Creator**: Elwood Downey, WB0OEW (SK) - https://www.clearskyinstitute.com/ham/HamClock/
+- **HamClock Creator**: Elwood Downey, WB0OEW (SK)
+- **Community Source**: [github.com/openhamclock/hamclock](https://github.com/openhamclock/hamclock)
 - **Community Backends**:
   - Bruce Edrich, W4BAE - [hamclock.com](https://hamclock.com/)
   - Brian (KO4AQF) & Austin (KN4LNB) - [Open HamClock Backend](https://github.com/BrianWilkinsFL/open-hamclock-backend)
@@ -570,7 +573,8 @@ This Docker container implementation is provided as-is for the amateur radio com
 - [Report Issues](https://github.com/ggilman/hamclock/issues)
 
 ### HamClock
-- [HamClock Official Site](https://www.clearskyinstitute.com/ham/HamClock/)
+- [HamClock Community Source](https://github.com/openhamclock/hamclock) - Active community-maintained source (v4.22+)
+- [HamClock Original Site](https://www.clearskyinstitute.com/ham/HamClock/) - Original site by Elwood Downey, WB0OEW (SK)
 
 ### Backend Servers
 - [hamclock.com](https://hamclock.com/) - W4BAE's community backend (recommended)

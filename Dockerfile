@@ -2,32 +2,32 @@
 # Production: values passed via build arguments
 # Docker Compose: values passed from .env file
 # Defaults below are fallback for manual builds
-ARG ALPINE_TAG=3.23.3
+ARG ALPINE_TAG=3.23.4
+ARG HAMCLOCK_VERSION=4.24.0
 
 # Stage 1: Build stage
 FROM alpine:${ALPINE_TAG} AS builder
 WORKDIR /build
 
 # ARG for versioning - passed from build arguments or .env
-ARG HAMCLOCK_VERSION=4.22
+ARG HAMCLOCK_VERSION
 # ARG for customizable resolutions - passed from build arguments or .env
 ARG BUILD_RESOLUTIONS="800x480,1600x960,2400x1440,3200x1920"
 
 # Install build dependencies
 # binutils is included for the 'strip' command
 RUN --mount=type=cache,target=/var/cache/apk \
-    apk add --no-cache bash curl make g++ unzip linux-headers build-base binutils
+    apk add --no-cache bash curl git make g++ linux-headers build-base binutils
 
 # Layer: Download & Build
 SHELL ["/bin/bash", "-c"]
 
-# Download layer - separate for better caching
-RUN echo "Downloading HamClock Version: ${HAMCLOCK_VERSION}" && \
-    curl -fsSL -O https://www.clearskyinstitute.com/ham/HamClock/ESPHamClock.zip && \
-    unzip -q ESPHamClock.zip
+# Clone source from GitHub
+RUN echo "Cloning HamClock v${HAMCLOCK_VERSION} from git..." && \
+    git clone --depth 1 --branch v${HAMCLOCK_VERSION} https://github.com/openhamclock/hamclock hamclock
 
 # Build layer - invalidated only if source changes
-RUN cd ESPHamClock && \
+RUN cd hamclock/ESPHamClock && \
     # ---------------------------------------------------------
     # COMPATIBILITY FIX: Force permissive mode
     # This ensures compilation succeeds even if source code has C++ compliance issues
@@ -45,21 +45,21 @@ RUN cd ESPHamClock && \
     done && \
     # Clean up build artifacts
     cd /build && \
-    rm -rf ESPHamClock.zip ESPHamClock
+    rm -rf hamclock
 
 # Stage 2: Runtime stage
 FROM alpine:${ALPINE_TAG}
 
 # Re-declare ARGs for use in labels (ARGs don't persist across stages)
-ARG HAMCLOCK_VERSION=4.22
-ARG ALPINE_TAG=3.23.3
+ARG HAMCLOCK_VERSION
+ARG ALPINE_TAG
 
 LABEL org.opencontainers.image.authors="W4GHG" \
       org.opencontainers.image.version="${HAMCLOCK_VERSION}" \
       org.opencontainers.image.description="HamClock Web Application" \
-      org.opencontainers.image.source="https://www.clearskyinstitute.com/ham/HamClock/" \
+      org.opencontainers.image.source="https://github.com/openhamclock/hamclock" \
       org.opencontainers.image.vendor="Community" \
-      org.opencontainers.image.licenses="Unknown" \
+      org.opencontainers.image.licenses="MIT" \
       org.opencontainers.image.base.name="alpine:${ALPINE_TAG}"
 WORKDIR /app
 
