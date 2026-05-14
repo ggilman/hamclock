@@ -2,7 +2,7 @@
 <configuration>
   <version>
     <major>2</major>
-    <minor>0</minor>
+    <minor>1</minor>
   </version>
   <image>
     <name>ggilman/hamclock</name>

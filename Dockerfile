@@ -66,7 +66,9 @@ WORKDIR /app
 # Install runtime dependencies and create user in a single layer
 # tzdata: Critical for HamClock to handle timezones correctly
 # shadow/su-exec: Required for the PUID/PGID security feature
+# apk upgrade: patches pre-installed base packages (busybox, curl, etc.) against known CVEs
 RUN --mount=type=cache,target=/var/cache/apk \
+    apk upgrade --no-cache && \
     apk add --no-cache bash curl libstdc++ libgcc shadow su-exec tzdata && \
     # Create generic user
     addgroup -S hamuser && adduser -S hamuser -G hamuser
