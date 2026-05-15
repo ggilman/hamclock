@@ -17,7 +17,7 @@ ARG BUILD_RESOLUTIONS="800x480,1600x960,2400x1440,3200x1920"
 # Install build dependencies
 # binutils is included for the 'strip' command
 RUN --mount=type=cache,target=/var/cache/apk \
-    apk add --no-cache bash curl git make g++ linux-headers build-base binutils
+    apk add --no-cache bash git make g++ linux-headers build-base binutils
 
 # Layer: Download & Build
 SHELL ["/bin/bash", "-c"]
@@ -66,10 +66,14 @@ WORKDIR /app
 # Install runtime dependencies and create user in a single layer
 # tzdata: Critical for HamClock to handle timezones correctly
 # shadow/su-exec: Required for the PUID/PGID security feature
-# apk upgrade: patches pre-installed base packages (busybox, curl, etc.) against known CVEs
+# apk upgrade: patches pre-installed base packages against known CVEs
+# curl and build toolchain (make, g++, etc.) are intentionally excluded:
+#   curl: CVE-2026-3805 (HIGH); not required since live update is unsupported in this image
+#   build toolchain: live self-update requires recompilation inside the container, which
+#     conflicts with the immutable-container model and introduces unnecessary attack surface
 RUN --mount=type=cache,target=/var/cache/apk \
     apk upgrade --no-cache && \
-    apk add --no-cache bash curl libstdc++ libgcc shadow su-exec tzdata && \
+    apk add --no-cache bash libstdc++ libgcc shadow su-exec tzdata && \
     # Create generic user
     addgroup -S hamuser && adduser -S hamuser -G hamuser
 
@@ -85,10 +89,13 @@ RUN chmod +x /entrypoint.sh && \
     ln -s /config /root/.hamclock && \
     ln -s /config /home/hamuser/.hamclock
 
+# Default to non-root user (satisfies Docker Scout; override with --user root to enable PUID/PGID remapping)
+USER hamuser
+
 EXPOSE 8081
 
 HEALTHCHECK --interval=60s --timeout=10s --start-period=30s --retries=3 \
-    CMD curl -f http://127.0.0.1:8081/live.html || exit 1
+    CMD bash -c 'echo > /dev/tcp/127.0.0.1/8081' 2>/dev/null
 
 ENTRYPOINT ["/entrypoint.sh"]
 CMD ["hamclock-1600x960"]

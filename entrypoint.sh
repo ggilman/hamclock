@@ -44,26 +44,22 @@ else
     echo "Backend: hamclock.com:80 (default - W4BAE's server)"
 fi
 
-if [ "$USER_ID" -ne 0 ]; then
-    # Modify the internal hamuser to match the requested IDs
-    groupmod -o -g "$GROUP_ID" hamuser
-    usermod -o -u "$USER_ID" hamuser
+if [ "$(id -u)" -eq 0 ]; then
+    if [ "$USER_ID" -ne 0 ]; then
+        # Remap internal hamuser to match the requested PUID/PGID
+        groupmod -o -g "$GROUP_ID" hamuser
+        usermod -o -u "$USER_ID" hamuser
 
-    # Ensure the config volume is writable by this user
-    chown -R hamuser:hamuser /config
-    chown -R hamuser:hamuser /home/hamuser
+        # Ensure the config volume is writable by this user
+        chown -R hamuser:hamuser /config
+        chown -R hamuser:hamuser /home/hamuser
 
-    # Execute as hamuser with backend arg if specified
-    if [ -n "$BACKEND_ARG" ]; then
         exec su-exec hamuser "$@" $BACKEND_ARG
     else
-        exec su-exec hamuser "$@"
+        # PUID=0: run as root (explicit legacy mode)
+        exec "$@" $BACKEND_ARG
     fi
 else
-    # Execute as root (Legacy Mode) with backend arg if specified
-    if [ -n "$BACKEND_ARG" ]; then
-        exec "$@" $BACKEND_ARG
-    else
-        exec "$@"
-    fi
+    # Non-root (default hamuser): run directly, no remapping needed
+    exec "$@" $BACKEND_ARG
 fi

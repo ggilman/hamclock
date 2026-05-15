@@ -8,7 +8,7 @@ A production-ready, multi-architecture Docker container for [HamClock](https://g
 ## Features
 
 - 🚀 **Multi-Architecture Support**: Runs on `linux/amd64` and `linux/arm64`
-- 🔒 **Security**: Supports non-root operation with PUID/PGID
+- 🔒 **Security**: Defaults to non-root `hamuser`; optional PUID/PGID remapping for NAS deployments (requires `user: root`)
 - 📦 **Lightweight**: Based on Alpine Linux (3.23.4)
 - 🎨 **Multiple Resolutions**: Pre-built binaries for 800x480, 1600x960, 2400x1440, and 3200x1920
 - � **Backend Configuration**: Easy switching between community backends (hamclock.com, OHB, or custom)- 🏠 **Self-Hosting Ready**: Run HamClock + backend together in one docker-compose file for complete independence- �🏥 **Health Monitoring**: Built-in Docker healthcheck
@@ -65,8 +65,6 @@ services:
     environment:
       - TZ=America/New_York
       # - BACKEND_PRESET=hamclock  # Optional - already the default
-      - PUID=1000  # Optional
-      - PGID=1000  # Optional
     volumes:
       - /path/to/config:/config
 ```
@@ -84,17 +82,20 @@ Access HamClock at: `http://localhost:8081`
 
 ### 1. File Permissions
 
-By default, this container runs as root. However, if you are running this on a NAS (Synology, Unraid, etc.) or want better security, you can specify a user/group ID.
+This container defaults to running as the internal non-root user `hamuser` (satisfying Docker security best practices). For most users this requires no configuration.
 
-- **PUID**: The User ID you want the container to run as
-- **PGID**: The Group ID you want the container to run as
+If you need the container process to run as a **specific host UID/GID** (common on NAS devices like Synology or Unraid where volume ownership is tied to a particular user), you can use the `PUID`/`PGID` feature — but this requires the container to start as root so the entrypoint can remap the internal user before dropping privileges.
 
-The container will automatically fix permissions on the `/config` directory to match the user you specified.
+- **PUID**: Host User ID to run as
+- **PGID**: Host Group ID to run as
 
-**Example with custom user:**
+> **Important**: `PUID`/`PGID` remapping requires `user: root` (or `--user root`) in your deployment. Without it the env vars are silently ignored and the container runs as `hamuser` with its default internal UID.
+
+**Docker Run (with PUID/PGID):**
 ```bash
 docker run -d \
   --name hamclock \
+  --user root \
   -p 8081:8081 \
   -e PUID=1000 \
   -e PGID=1000 \
@@ -102,7 +103,27 @@ docker run -d \
   ggilman/hamclock:latest
 ```
 
-To find your PUID and PGID on Linux:
+**Docker Compose (with PUID/PGID):**
+```yaml
+services:
+  hamclock:
+    image: ggilman/hamclock:latest
+    user: root          # required for PUID/PGID remapping
+    environment:
+      - PUID=1000
+      - PGID=1000
+```
+
+**Docker Run (default, no remapping needed):**
+```bash
+docker run -d \
+  --name hamclock \
+  -p 8081:8081 \
+  -v /path/to/config:/config \
+  ggilman/hamclock:latest
+```
+
+To find your host PUID/PGID on Linux:
 ```bash
 id $USER
 ```
@@ -287,8 +308,9 @@ services:
     environment:
       - TZ=America/New_York
       - BACKEND_URL=backend:80  # Points to the OHB service above
-      - PUID=1000  # Optional
-      - PGID=1000  # Optional
+      # PUID/PGID remapping: add 'user: root' to this service and set these if needed
+      # - PUID=1000
+      # - PGID=1000
     volumes:
       - /path/to/config:/config
 ```
@@ -373,6 +395,21 @@ docker inspect --format='{{.State.Health.Status}}' hamclock
 
 ## Troubleshooting
 
+### Live Update Not Supported
+
+HamClock's built-in live update feature (which downloads source and recompiles) is **not supported** in this container. Two reasons:
+
+1. **Security**: Live update requires `curl` (CVE-2026-3805, HIGH) and a full C++ build toolchain inside the runtime image, significantly increasing attack surface.
+2. **Immutable containers**: Docker best practice is to update by pulling a new image rather than mutating a running container.
+
+Attempting to use HamClock's live update will show `sh: make: not found` or `sh: curl: not found`. This is expected.
+
+**To update HamClock**, pull the latest image:
+```bash
+docker pull ggilman/hamclock:latest
+docker compose up -d
+```
+
 ### Backend Connection Issues
 
 **Problem**: HamClock shows "No data" or blank displays after June 2026.
@@ -414,14 +451,15 @@ docker logs hamclock | grep Backend
 
 **Problem**: Container logs show permission errors when trying to write to `/config`.
 
-**Solution**: Ensure the PUID and PGID variables match the user who owns the `/path/to/your/config` folder on your host machine.
+**Solution**: Ensure the PUID and PGID variables match the user who owns the `/path/to/your/config` folder on your host machine. PUID/PGID remapping also requires `--user root` so the entrypoint can remap the internal user.
 
 ```bash
 # Check ownership of your config directory
 ls -la /path/to/your/config
 
-# Set correct PUID/PGID
+# Set correct PUID/PGID (note --user root is required)
 docker run -d \
+  --user root \
   -e PUID=1000 \
   -e PGID=1000 \
   -v /path/to/config:/config \
@@ -519,7 +557,16 @@ This container uses a multi-stage build process:
 
 **Base Image**: Alpine Linux 3.23.4  
 **Compiled HamClock Versions**: All available resolutions  
-**Security**: Runs as non-root user when PUID/PGID specified  
+**Security**: Defaults to non-root `hamuser`; PUID/PGID remapping requires `user: root`  
+
+## Known CVEs
+
+The following CVEs are present in this image. Each entry explains why it cannot
+be removed and what mitigation is in place.
+
+| CVE | Severity | Component | Status | Notes |
+|-----|----------|-----------|--------|-------|
+| [CVE-2025-60876](https://www.cve.org/CVERecord?id=CVE-2025-60876) | MEDIUM (6.5) | `busybox` (wget) | No Alpine fix available | CRLF/LF injection in busybox wget (≤1.37.0). Alpine 3.23 has no patched version as of May 2026. Mitigated by not using `wget` in this image — the healthcheck uses `bash /dev/tcp` instead. Will auto-resolve when Alpine ships a patch. |
 
 ## Version Information
 

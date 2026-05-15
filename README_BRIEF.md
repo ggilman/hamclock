@@ -5,7 +5,7 @@ A production-ready, multi-architecture Docker container for [HamClock](https://w
 ## Features
 
 - 🚀 **Multi-Architecture**: `linux/amd64` and `linux/arm64`
-- 🔒 **Security**: Non-root operation with PUID/PGID support
+- 🔒 **Security**: Defaults to non-root `hamuser`; optional PUID/PGID remapping for NAS deployments
 - 📦 **Lightweight**: Alpine Linux 3.23.4
 - 🎨 **Multiple Resolutions**: 800x480, 1600x960, 2400x1440, 3200x1920
 - 🌐 **Backend Configuration**: Easy switching between community backends (hamclock.com, OHB, or custom)
@@ -43,8 +43,20 @@ services:
       - 8081:8081
     environment:
       - TZ=America/New_York
-      - PUID=1000  # Optional
-      - PGID=1000  # Optional
+    volumes:
+      - /path/to/config:/config
+```
+
+**With PUID/PGID remapping** (NAS/Unraid — requires `user: root` to allow UID remapping at startup):
+```yaml
+services:
+  hamclock:
+    image: ggilman/hamclock:latest
+    user: root          # required for PUID/PGID remapping
+    environment:
+      - TZ=America/New_York
+      - PUID=1000
+      - PGID=1000
     volumes:
       - /path/to/config:/config
 ```
@@ -60,6 +72,16 @@ services:
 ### Backend Options (v2.0+)
 - **BACKEND_PRESET**: `hamclock` (default v2.0+), `ohb`, or `original`
 - **BACKEND_URL**: Custom backend server (e.g., `192.168.1.100:8080`)
+
+## Known CVEs
+
+| CVE | Component | Notes |
+|-----|-----------|-------|
+| CVE-2025-60876 (MEDIUM) | `busybox` wget | No Alpine 3.23 patch available as of May 2026. Not exploitable here — `wget` is not used in this image (healthcheck uses `bash /dev/tcp`). |
+
+## Limitations
+
+- **Live update not supported**: HamClock's built-in self-update (which recompiles from source) requires `curl` and a full C++ build toolchain. Both are excluded for security reasons — including them would roughly triple the runtime image size and introduce HIGH-severity CVEs. Update by pulling a new image instead: `docker pull ggilman/hamclock:latest`.
 
 ## Documentation
 
