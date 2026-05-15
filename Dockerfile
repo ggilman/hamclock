@@ -1,16 +1,20 @@
-# 1. Global ARGs (Must be defined before FROM to be used in FROM)
-# Production: values passed via build arguments
-# Docker Compose: values passed from .env file
-# Defaults below are fallback for manual builds
-ARG ALPINE_TAG=3.23.4
-ARG HAMCLOCK_VERSION=4.24.0
+# syntax=docker/dockerfile:1
+# =============================================================================
+# Build Arguments (all overridable at build time via --build-arg)
+# -----------------------------------------------------------------------------
+# BASE_OS_TAG       - Base OS image version tag           (default: 3.23.4)
+# APP_VERSION       - Upstream release tag to build       (no default: required)
+# BUILD_RESOLUTIONS - Display resolutions to compile      (default: 800x480,...)
+# =============================================================================
+ARG BASE_OS_TAG=3.23.4
+ARG APP_VERSION
 
 # Stage 1: Build stage
-FROM alpine:${ALPINE_TAG} AS builder
+FROM alpine:${BASE_OS_TAG} AS builder
 WORKDIR /build
 
 # ARG for versioning - passed from build arguments or .env
-ARG HAMCLOCK_VERSION
+ARG APP_VERSION
 # ARG for customizable resolutions - passed from build arguments or .env
 ARG BUILD_RESOLUTIONS="800x480,1600x960,2400x1440,3200x1920"
 
@@ -23,8 +27,8 @@ RUN --mount=type=cache,target=/var/cache/apk \
 SHELL ["/bin/bash", "-c"]
 
 # Clone source from GitHub
-RUN echo "Cloning HamClock v${HAMCLOCK_VERSION} from git..." && \
-    git clone --depth 1 --branch v${HAMCLOCK_VERSION} https://github.com/openhamclock/hamclock hamclock
+RUN echo "Cloning HamClock v${APP_VERSION} from git..." && \
+    git clone --depth 1 --branch v${APP_VERSION} https://github.com/openhamclock/hamclock hamclock
 
 # Build layer - invalidated only if source changes
 RUN cd hamclock/ESPHamClock && \
@@ -48,19 +52,20 @@ RUN cd hamclock/ESPHamClock && \
     rm -rf hamclock
 
 # Stage 2: Runtime stage
-FROM alpine:${ALPINE_TAG}
+ARG BASE_OS_TAG
+FROM alpine:${BASE_OS_TAG}
 
 # Re-declare ARGs for use in labels (ARGs don't persist across stages)
-ARG HAMCLOCK_VERSION
-ARG ALPINE_TAG
+ARG APP_VERSION
+ARG BASE_OS_TAG
 
 LABEL org.opencontainers.image.authors="W4GHG" \
-      org.opencontainers.image.version="${HAMCLOCK_VERSION}" \
+      org.opencontainers.image.version="${APP_VERSION}" \
       org.opencontainers.image.description="HamClock Web Application" \
       org.opencontainers.image.source="https://github.com/openhamclock/hamclock" \
       org.opencontainers.image.vendor="Community" \
       org.opencontainers.image.licenses="MIT" \
-      org.opencontainers.image.base.name="alpine:${ALPINE_TAG}"
+      org.opencontainers.image.base.name="alpine:${BASE_OS_TAG}"
 WORKDIR /app
 
 # Install runtime dependencies and create user in a single layer
