@@ -6,7 +6,7 @@ A production-ready, multi-architecture Docker container for [HamClock](https://w
 
 - 🚀 **Multi-Architecture**: `linux/amd64` and `linux/arm64`
 - 🔒 **Security**: Defaults to non-root `hamuser`; optional PUID/PGID remapping for NAS deployments
-- 📦 **Lightweight**: Alpine Linux 3.23.4
+- 📦 **Lightweight**: Alpine Linux 3.24
 - 🎨 **Multiple Resolutions**: 800x480, 1600x960, 2400x1440, 3200x1920
 - 🌐 **Backend Configuration**: Easy switching between community backends (hamclock.com, OHB, or custom)
 - 🏠 **Self-Hosting Ready**: Run HamClock + backend together
@@ -77,7 +77,7 @@ services:
 
 | CVE | Component | Notes |
 |-----|-----------|-------|
-| CVE-2025-60876 (MEDIUM) | `busybox` wget | No Alpine 3.23 patch available as of May 2026. Not exploitable here — `wget` is not used in this image (healthcheck uses `bash /dev/tcp`). |
+| CVE-2025-60876 (MEDIUM) | `busybox` wget | No Alpine 3.24 patch available as of September 2026. Not exploitable here — `wget` is not used in this image (healthcheck uses `bash /dev/tcp`). |
 
 ## Limitations
 

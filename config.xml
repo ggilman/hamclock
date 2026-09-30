@@ -2,7 +2,7 @@
 <configuration>
   <version>
     <major>2</major>
-    <minor>5</minor>
+    <minor>6</minor>
   </version>
   <image>
     <name>ggilman/hamclock</name>
@@ -17,5 +17,5 @@
   <build>
     <resolutions>800x480,1600x960,2400x1440,3200x1920</resolutions>
   </build>
-  <upstream_version>4.24.0</upstream_version>
+  <upstream_version>4.32.0</upstream_version>
 </configuration>

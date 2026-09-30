@@ -2,11 +2,11 @@
 # =============================================================================
 # Build Arguments (all overridable at build time via --build-arg)
 # -----------------------------------------------------------------------------
-# BASE_OS_TAG       - Base OS image version tag           (default: 3.23.4)
+# BASE_OS_TAG       - Base OS image version tag           (default: 3.24)
 # APP_VERSION       - Upstream release tag to build       (no default: required)
 # BUILD_RESOLUTIONS - Display resolutions to compile      (default: 800x480,...)
 # =============================================================================
-ARG BASE_OS_TAG=3.23.4
+ARG BASE_OS_TAG=3.24
 ARG APP_VERSION
 
 # Stage 1: Build stage

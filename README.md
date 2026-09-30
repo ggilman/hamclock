@@ -9,7 +9,7 @@ A production-ready, multi-architecture Docker container for [HamClock](https://g
 
 - 🚀 **Multi-Architecture Support**: Runs on `linux/amd64` and `linux/arm64`
 - 🔒 **Security**: Defaults to non-root `hamuser`; optional PUID/PGID remapping for NAS deployments (requires `user: root`)
-- 📦 **Lightweight**: Based on Alpine Linux (3.23.4)
+- 📦 **Lightweight**: Based on Alpine Linux (3.24)
 - 🎨 **Multiple Resolutions**: Pre-built binaries for 800x480, 1600x960, 2400x1440, and 3200x1920
 - � **Backend Configuration**: Easy switching between community backends (hamclock.com, OHB, or custom)- 🏠 **Self-Hosting Ready**: Run HamClock + backend together in one docker-compose file for complete independence- �🏥 **Health Monitoring**: Built-in Docker healthcheck
 - 💾 **Persistent Storage**: Configuration automatically saved to mounted volume
@@ -520,8 +520,8 @@ docker build -t hamclock:custom .
 **With custom build arguments:**
 ```bash
 docker build \
-  --build-arg ALPINE_TAG=3.23.4 \
-  --build-arg HAMCLOCK_VERSION=4.24.0 \
+  --build-arg BASE_OS_TAG=3.24 \
+  --build-arg APP_VERSION=4.32.0 \
   --build-arg BUILD_RESOLUTIONS="1600x960,2400x1440" \
   -t hamclock:custom .
 ```
@@ -530,8 +530,8 @@ docker build \
 ```bash
 docker buildx build \
   --platform linux/amd64,linux/arm64 \
-  --build-arg ALPINE_TAG=3.23.4 \
-  --build-arg HAMCLOCK_VERSION=4.24.0 \
+  --build-arg BASE_OS_TAG=3.24 \
+  --build-arg APP_VERSION=4.32.0 \
   -t yourusername/hamclock:latest \
   --push .
 ```
@@ -555,7 +555,7 @@ This container uses a multi-stage build process:
 1. **Builder Stage**: Clones HamClock source from [GitHub](https://github.com/openhamclock/hamclock), compiles for multiple resolutions, strips debug symbols
 2. **Runtime Stage**: Minimal Alpine image with only runtime dependencies
 
-**Base Image**: Alpine Linux 3.23.4  
+**Base Image**: Alpine Linux 3.24  
 **Compiled HamClock Versions**: All available resolutions  
 **Security**: Defaults to non-root `hamuser`; PUID/PGID remapping requires `user: root`  
 
@@ -566,12 +566,12 @@ be removed and what mitigation is in place.
 
 | CVE | Severity | Component | Status | Notes |
 |-----|----------|-----------|--------|-------|
-| [CVE-2025-60876](https://www.cve.org/CVERecord?id=CVE-2025-60876) | MEDIUM (6.5) | `busybox` (wget) | No Alpine fix available | CRLF/LF injection in busybox wget (≤1.37.0). Alpine 3.23 has no patched version as of May 2026. Mitigated by not using `wget` in this image — the healthcheck uses `bash /dev/tcp` instead. Will auto-resolve when Alpine ships a patch. |
+| [CVE-2025-60876](https://www.cve.org/CVERecord?id=CVE-2025-60876) | MEDIUM (6.5) | `busybox` (wget) | No Alpine fix available | CRLF/LF injection in busybox wget (≤1.37.0). Alpine 3.24 (busybox 1.37.0-r31) has no patched version as of September 2026. Mitigated by not using `wget` in this image — the healthcheck uses `bash /dev/tcp` instead. Will auto-resolve when Alpine ships a patch. |
 
 ## Version Information
 
 - **HamClock**: Cloned from [github.com/openhamclock/hamclock](https://github.com/openhamclock/hamclock)
-- **Alpine**: 3.23.4
+- **Alpine**: 3.24
 - **Container Version**: Check image tags on Docker Hub
 
 ## Support & Contributing

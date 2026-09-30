@@ -3,8 +3,8 @@ services:
     build:
       context: .
       args:
-        - ALPINE_TAG=${ALPINE_TAG:-3.23.4}
-        - HAMCLOCK_VERSION=${HAMCLOCK_VERSION:-4.24.0}
+        - BASE_OS_TAG=${BASE_OS_TAG:-3.24}
+        - APP_VERSION=${APP_VERSION:-4.32.0}
         - BUILD_RESOLUTIONS=${BUILD_RESOLUTIONS:-800x480,1600x960,2400x1440,3200x1920}
     image: ggilman/hamclock:latest
     container_name: hamclock
